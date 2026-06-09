@@ -102,3 +102,55 @@ SBF_ROLE_GUARDIAN = 1 << 4
 _EVM_ADDRESS_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
 _HEX32_RE = re.compile(r"^0x[a-fA-F0-9]{64}$")
 
+
+def _is_valid_address(addr: Optional[str]) -> bool:
+    return addr is not None and bool(_EVM_ADDRESS_RE.match(addr.strip()))
+
+
+def _require_address(addr: str, code: str) -> str:
+    if not _is_valid_address(addr):
+        raise SBFError(code, "invalid address envelope")
+    if addr.lower() == SBF_ZERO_ADDR.lower():
+        raise SBFError(code, "zero address rejected")
+    return addr
+
+
+def _keccak256(data: bytes) -> bytes:
+    return hashlib.sha3_256(data).digest()
+
+
+def _topic_hash(label: str) -> str:
+    return "0x" + _keccak256(label.encode("utf-8")).hex()
+
+
+# -----------------------------------------------------------------------------
+# EVENT PAYLOADS (immutable records)
+# -----------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class SBFCuratorRegistered:
+    curator: str
+    bond_wei: int
+    lane_id: int
+    at_epoch: int
+
+
+@dataclass(frozen=True)
+class SBFBondDeposited:
+    curator: str
+    amount_wei: int
+    total_bond_wei: int
+
+
+@dataclass(frozen=True)
+class SBFBondWithdrawn:
+    curator: str
+    amount_wei: int
+    remaining_wei: int
+
+
+@dataclass(frozen=True)
+class SBFWitnessPosted:
+    witness_id: bytes
+    curator: str
+    epoch: int
