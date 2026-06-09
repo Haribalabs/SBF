@@ -154,3 +154,55 @@ class SBFWitnessPosted:
     witness_id: bytes
     curator: str
     epoch: int
+    bloom_root: str
+    batch_root: str
+
+
+@dataclass(frozen=True)
+class SBFFinalityVoteCast:
+    voter: str
+    epoch: int
+    support: bool
+    weight_wei: int
+
+
+@dataclass(frozen=True)
+class SBFEpochFinalized:
+    epoch: int
+    inclusion_root: str
+    yes_weight: int
+    no_weight: int
+
+
+@dataclass(frozen=True)
+class SBFCuratorSlashed:
+    curator: str
+    amount_wei: int
+    reason_code: str
+
+
+@dataclass(frozen=True)
+class SBFRewardClaimed:
+    curator: str
+    epoch: int
+    reward_wei: int
+
+
+@dataclass(frozen=True)
+class SBFPaused:
+    actor: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class SBFResumed:
+    actor: str
+
+
+class SBFLaneKind(IntEnum):
+    INCLUSION = 1
+    EXCLUSION = 2
+    CHALLENGE = 3
+    RECOVERY = 4
+
+
