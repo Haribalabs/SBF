@@ -206,3 +206,55 @@ class SBFLaneKind(IntEnum):
     RECOVERY = 4
 
 
+class SBFEpochPhase(Enum):
+    OPEN = "open"
+    WITNESS = "witness"
+    VOTING = "voting"
+    FINALIZED = "finalized"
+    ARCHIVED = "archived"
+
+
+@dataclass(frozen=True)
+class SBFCuratorProfile:
+    curator: str
+    bond_wei: int
+    lane_id: int
+    reputation: int
+    active: bool
+    registered_epoch: int
+
+
+@dataclass
+class SBFEpochState:
+    epoch: int
+    phase: SBFEpochPhase
+    witness_count: int
+    yes_weight: int
+    no_weight: int
+    inclusion_root: Optional[str]
+    opened_at: int
+    closed_at: Optional[int]
+
+
+@dataclass(frozen=True)
+class SBFWitnessRecord:
+    witness_id: bytes
+    curator: str
+    epoch: int
+    bloom_root: str
+    batch_root: str
+    posted_at: int
+    gas_estimate: int
+
+
+# -----------------------------------------------------------------------------
+# BLOOM FILTER CORE
+# -----------------------------------------------------------------------------
+
+class SBFBloomMatrix:
+    """Fixed-size bloom matrix for batch inclusion witnesses."""
+
+    __slots__ = ("_bits", "_m", "_k")
+
+    def __init__(self, m_bits: int = SBF_BLOOM_M_BITS, k_hashes: int = SBF_BLOOM_K_HASHES) -> None:
+        if m_bits < 256 or k_hashes < 3:
